@@ -1,0 +1,6 @@
+L=200
+pf=0.3116
+maxcluster=100
+file=datafile.dat
+seed = 11
+maxsite = 300000

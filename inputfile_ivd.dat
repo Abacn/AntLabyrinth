@@ -1,0 +1,6 @@
+L=200
+pf=0.4
+maxcluster=100
+file=ivd.dat
+seed = 103
+arraylen = 60

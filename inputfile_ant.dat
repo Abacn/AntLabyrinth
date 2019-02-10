@@ -1,0 +1,6 @@
+Nthres=5000
+pf=0.3116077
+maxcluster=1000
+file=antmsd.dat
+seed = 100
+arraylen = 24
