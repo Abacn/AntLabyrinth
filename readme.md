@@ -15,12 +15,12 @@ Makefile has multiple labels which correspond to different programs and implemen
 
 - ant
   Run dynamical simulations of an ant on the lettice. There are different implementations based on different background data structure, including:
--- ant_ord
-   The visited sites are stored in std::set, based on red-black tree, with O(log n) query time. It is adapted to the case of p>p_c where large clusters might be possible.
--- ant_und
-   The visited sites are stored in std::unordered_set, based on hash table, with O(1) query time with more memory . It is adapted to the case of p <= p_c where large clusters is unlikely, otherwise the program may run out of the memory when a large cluster is encountered.
--- ant_hbd
-   Solving dynamics on small clusters by transfer matrix and do simulations only on large clusters. Uses ant_und implementation as the parent class, which means the simulation part is the same as ant_und. One can easily modify the code to call ant_ord implementation if necessary.
+  - ant_ord
+     The visited sites are stored in std::set, based on red-black tree, with O(log n) query time. It is adapted to the case of p>p_c where large clusters might be possible.
+  - ant_und
+     The visited sites are stored in std::unordered_set, based on hash table, with O(1) query time with more memory . It is adapted to the case of p <= p_c where large clusters is unlikely, otherwise the program may run out of the memory when a large cluster is encountered.
+  - ant_hbd
+     Solving dynamics on small clusters by transfer matrix and do simulations only on large clusters. Uses ant_und implementation as the parent class, which means the simulation part is the same as ant_und. One can easily modify the code to call ant_ord implementation if necessary.
 
 - msdlim
   Calculate the infinite time limit of MSD on a lattice
@@ -34,33 +34,33 @@ Makefile has multiple labels which correspond to different programs and implemen
 ## File list
 
 - AntLatticeWalk
--- ant.hpp
--- cluster_counter.hpp
--- leath_counter.hpp
--- ant_global.cpp
--- coordinate.h
--- leathsitenode.hpp
--- ant_global.hpp
--- grid_field.h
--- limited_queue.hpp
--- ant_main.cpp
--- invade.cpp
--- msdlimit.cpp
--- ant_ord.cpp
--- invade.hpp
--- read_input.cpp
--- ant_und.cpp
--- leath.cpp
--- read_input.h
--- cluster_counter.cpp
--- leath_counter.cpp
+  - ant.hpp
+  - cluster_counter.hpp
+  - leath_counter.hpp
+  - ant_global.cpp
+  - coordinate.h
+  - leathsitenode.hpp
+  - ant_global.hpp
+  - grid_field.h
+  - limited_queue.hpp
+  - ant_main.cpp
+  - invade.cpp
+  - msdlimit.cpp
+  - ant_ord.cpp
+  - invade.hpp
+  - read_input.cpp
+  - ant_und.cpp
+  - leath.cpp
+  - read_input.h
+  - cluster_counter.cpp
+  - leath_counter.cpp
 - DIM
--- *D/dim.h Headers define the dimension of systems when compiling
+  - *D/dim.h Headers define the dimension of systems when compiling
 - HybridAnt
--- ant_hbd_main.cpp
--- ant_hbd.hpp
--- ant_mat.cpp
--- ant_hbd.cpp
+  - ant_hbd_main.cpp
+  - ant_hbd.hpp
+  - ant_mat.cpp
+  - ant_hbd.cpp
 - MSDDumpReader  Small data processing programs to compute the local $\mu_-$ 
   (MSDDumpReader in d<6; MSDDumpReaderB for the prefactor in d >= 6)
 
