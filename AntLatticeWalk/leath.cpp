@@ -2,6 +2,8 @@
 #include <time.h>
 #include "leath_counter.hpp"
 
+// main function for the Leath algorithm to generate (finite) clusters
+
 int main(int argc, const char * argv[]) {
   const char *inputf, *dftinputf = "inputfile_leath.dat";
   long stepview, nextview, nowsites, nowclu;

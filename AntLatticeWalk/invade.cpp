@@ -8,9 +8,8 @@
 #include "leathsitenode.hpp"
 #include "invade.hpp"
 
-/* Ant labyrinth on a cluster which is grew by Leath algorithm
- * (ordered_)map version
- * used for p > p_c
+/* Invade percolation algorithm
+ * Compute the percolation threshold for the site percolation
  */
 
 using namespace std;

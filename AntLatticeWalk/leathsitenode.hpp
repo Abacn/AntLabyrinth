@@ -3,7 +3,6 @@
 //  AntLatticeWalk
 //
 //  Created by Yi Hu on 7/6/18.
-//  Copyright © 2018 Yi Hu. All rights reserved.
 //
 
 #ifndef leathsitenode_h

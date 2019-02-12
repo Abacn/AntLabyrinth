@@ -1,5 +1,5 @@
 //
-//  grid_cluster_counter.hpp
+//  cluster_counter.hpp
 //  AntLatticeWalk
 //
 //  Created by Yi Hu on 5/3/18.
@@ -47,4 +47,4 @@ public:
   }
 };
 
-#endif /* grid_cluster_counter_h */
+#endif /* cluster_counter_h */

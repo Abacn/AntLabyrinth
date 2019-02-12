@@ -2,9 +2,6 @@
 //  ant_main.cpp
 //  AntLatticeWalk
 //
-//  Created by Yi Hu on 9/30/18.
-//  Copyright © 2018 Yi Hu. All rights reserved.
-//
 
 #include <string.h>
 #include <math.h>

@@ -3,7 +3,6 @@
 //  AntLatticeWalk
 //
 //  Created by Yi Hu on 7/31/18.
-//  Copyright © 2018 Yi Hu. All rights reserved.
 //
 
 #ifndef invade_hpp
@@ -12,6 +11,11 @@
 
 #include "leathsitenode.hpp"
 #include "read_input.h"
+
+/* Invade percolation algorithm
+ * header file
+ * Compute the percolation threshold for the site percolation
+ */
 
 // rand_type:
 // 1 : mt19937_64, slower but longer period: 2^19937

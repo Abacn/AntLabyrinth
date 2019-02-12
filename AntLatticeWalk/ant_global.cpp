@@ -2,9 +2,9 @@
 //  ant_global.cpp
 //  AntLatticeWalk
 //
-//  Created by Yi Hu on 9/30/18.
-//  Copyright © 2018 Yi Hu. All rights reserved.
+//  Dump the data. Call this single function to uniformize the output format
 //
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
