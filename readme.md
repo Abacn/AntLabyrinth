@@ -8,7 +8,7 @@ Calculating the percolation threshold and dynamical exponents of the site percol
 - Tested compiler Intel C++ compiler icpc version 19.0.0.117 (gcc version 4.9.0 compatibility)
 - Platform: Linux or Mac
 - Publication: Giulio Biroli, Patrick Charbonneau and Yi Hu. \"Dynamics around the Site Percolation Threshold on High-Dimensional Hypercubic Lattices\". Physical Review E 99, 022118 (2019). 
-
+- URL: http://doi.org/10.1103/PhysRevE.99.022118
 ## Compiling options
 
 Makefile has multiple labels which correspond to different programs and implementations:
