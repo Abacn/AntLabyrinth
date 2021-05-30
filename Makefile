@@ -6,17 +6,20 @@ else
         INTEL_ROOT = /opt/apps/intelcsl/composerxe
         MKLROOT = /dscrhome/yh163/intel/mkl
         MKLFLAGS =  -mkl=sequential -lpthread -lm -ldl
+        CC = icpc
     endif
     ifeq ($(UNAME_S),Darwin)
         INTEL_ROOT = /opt/intel/compilers_and_libraries/mac
         MKLROOT = $(INTEL_ROOT)/mkl
         MKLFLAGS = -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl
+        CC = clang++
     endif
 endif
-
-PREFIX = bin
+MKLROOT = $(INTEL_ROOT)/mkl
+PREFIX = ../bin
 INC = AntLatticeWalk
 HBDINC = HybridAnt
+IVDINC = InvadePercolation
 FCOMMON = $(INC)
 SCOMMON = $(INC)/read_input.cpp 
 SANT_A = $(INC)/ant_ord.cpp $(INC)/ant_main.cpp $(INC)/ant_global.cpp
@@ -24,11 +27,11 @@ SANT_B = $(INC)/ant_und.cpp $(INC)/ant_main.cpp $(INC)/ant_global.cpp
 SANT_H = $(INC)/ant_und.cpp $(HBDINC)/ant_hbd.cpp $(INC)/ant_global.cpp $(HBDINC)/ant_hbd_main.cpp
 SMSD = $(INC)/cluster_counter.cpp $(INC)/msdlimit.cpp
 SLEATH = $(INC)/leath_counter.cpp $(INC)/leath.cpp
-SINVADE = $(INC)/invade.cpp
-CC = icpc
+SINVADE = $(IVDINC)/invade.cpp $(IVDINC)/basevec.cpp 
+
 FLAGS = -std=c++11 -Wall -O3
 
-all: ant msdlim leath
+all: ant msd leath
 
 ant: ant_ord ant_und ant_hbd
 
@@ -42,20 +45,20 @@ ant_hbd:
 	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -I$(HBDINC) -I$(MKLROOT)/include -c -o $(PREFIX)/ant_mat_$(DIM).o  $(HBDINC)/ant_mat.cpp
 	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -I$(HBDINC) -I$(MKLROOT)/include -o $(PREFIX)/ant_hbd_$(DIM) $(PREFIX)/ant_mat_$(DIM).o $(SCOMMON) $(SANT_H) $(MKLFLAGS)
 
-msdlim:
+msd:
 	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -o $(PREFIX)/msdlim_$(DIM) $(SCOMMON) $(SMSD)
 
 leath:
 	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -o $(PREFIX)/leath_$(DIM) $(SCOMMON) $(SLEATH)
 
 invade:
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -o $(PREFIX)/invade_$(DIM) $(SCOMMON) $(SINVADE)
+	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -I$(IVDINC) -o $(PREFIX)/invade_$(DIM) $(SCOMMON) $(SINVADE)
 
 usage:
-	@echo "Usage make [ant/ant_ord/ant_und/ant_hbd/msdlim/leath/invade] DIM=3D"
+	@echo "Usage make [ant/msd] DIM=3D"
 
 clean:
-	rm -f $(PREFIX)/*.o
+	rm -f *.o
 
-.PHONY: ant_ord ant_und ant_hbd msdlim leath usage clean
+.PHONY: ant_ord ant_und ant_hbd msd leath usage clean
 

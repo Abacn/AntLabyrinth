@@ -1,6 +1,6 @@
-L=200
-pf=0.4
-maxcluster=100
-file=ivd.dat
-seed = 103
-arraylen = 60
+L=12           # Site: 0-Zn, 1-Dn, 2-En; Bond: 10-Zn, 11-Dn, 12-En 
+pf=0.4         # not used
+maxcluster=10  # number of repeat run
+file=ivd.dat   # output file name
+seed = 103     # random number seed
+arraylen = 30  # max cluster size = 100*2^(arraylen/4)
