@@ -1,4 +1,16 @@
-# Lattice percolation codes
+# Lattice percolation and tracer dynamics
+
+## Summary
+
+- Language: C++
+- Tested compiler Intel C++ compiler icpc version 19.0.0.117 (gcc version 4.9.0 compatibility)
+- Platform: Linux or Mac
+- Publication: 
+  1. Giulio Biroli, Patrick Charbonneau and Yi Hu. \"Dynamics around the Site Percolation Threshold on High-Dimensional Hypercubic Lattices\". Physical Review E 99, 022118 (2019). \
+  URL: http://doi.org/10.1103/PhysRevE.99.022118
+
+  1. Yi Hu and Patrick Charbonneau, \"Percolation thresholds on high dimensional D_n and E_8-related lattices\". Physical Review E (2021). \
+  URL: https://arxiv.org/abs/2102.09682
 
 ## Dynamics around the Site Percolation Threshold on Hypercubic Lattices
 
@@ -19,17 +31,7 @@ Lattice animal enumeration to solve the series expansion form of the site or bon
 ```
 
 
-## Summary
 
-- Language: C++
-- Tested compiler Intel C++ compiler icpc version 19.0.0.117 (gcc version 4.9.0 compatibility)
-- Platform: Linux or Mac
-- Publication: 
-  - Giulio Biroli, Patrick Charbonneau and Yi Hu. \"Dynamics around the Site Percolation Threshold on High-Dimensional Hypercubic Lattices\". Physical Review E 99, 022118 (2019). \
-  URL: http://doi.org/10.1103/PhysRevE.99.022118
-
-  - Yi Hu and Patrick Charbonneau, \"Percolation thresholds on high dimensional D_n and E_8-related lattices\". Physical Review E (2021). \
-  URL: https://arxiv.org/abs/2102.09682
 
 ## Compiling options
 

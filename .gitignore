@@ -1,3 +1,9 @@
+# binaries
 bin/*
 bin/*.o
+**/build/**
+# output data
+**/data_*.dat
+**/dbgsummary.dat
+# macOS filesystem metadata
 .DS_Store

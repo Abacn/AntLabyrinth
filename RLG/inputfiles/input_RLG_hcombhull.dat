@@ -1,0 +1,8 @@
+repeatrun = 1	# number of repeat run
+N = 1000		# number of obstacles
+seed = 1025		# random number seed
+datafile = data_RLG_qhull	# output file
+outputmode = product		# output level
+defaultoptflag = 1			# default optimization flag
+rcut = 0.65		# cell/facet storage cutoff radius
+nthread = 4		# number of thread (OpenMP only)

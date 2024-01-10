@@ -1,0 +1,13 @@
+systemtype = sphere
+repeatrun = 500
+rmax = 2.5
+Phi = 4
+texp = 13
+sampleInterval = -4 4 2
+seed = 1
+datafile = msd
+logdatafile = -
+outputmode = product
+rcuttype = 0
+rcut = 3
+--end--

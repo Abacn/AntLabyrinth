@@ -1,0 +1,15 @@
+systemtype = box
+repeatrun = 1
+N = 10000
+Phi = 4
+texp = 1
+sampleInterval = -4 4 1
+seed = 790536426
+datafile = msd
+logdatafile = -
+outputmode = debug
+rcuttype = 2
+rcut = 2.5
+xi = 2
+lambda = 2
+--end--

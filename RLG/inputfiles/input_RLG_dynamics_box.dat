@@ -1,0 +1,13 @@
+systemtype = box	# type of boundary. Can be box/hcomb/sphere
+repeatrun = 10000	# number of independent repeat runs
+N = 10000			# number of obstacles
+Phi = 6				# obstacle density
+texp = 8			# 2^texp is running time
+sampleInterval = -4 4 3	# first record time 2^(t1), interval time 2^(1/t2), time option (see code)
+seed = 1025			# random number seed
+datafile = msd		# MSD output filename
+logdatafile = -		# output filename for log MSD. set to "-" if do not output
+outputmode = product	# output level
+rcuttype = 2		# first passage dump (sphere boundary only)
+rcut = 3			# initial neighbor list cutoff
+--end--

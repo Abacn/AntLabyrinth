@@ -1,0 +1,13 @@
+systemtype = hcomb
+repeatrun = 10
+N = 100000
+Phi = 4
+texp = 14
+sampleInterval = -4 4 1
+seed = 1238897672
+datafile = msd
+logdatafile = logmsd
+outputmode = product
+rcuttype = 2
+rcut = 3
+--end--

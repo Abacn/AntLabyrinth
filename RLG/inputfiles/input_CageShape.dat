@@ -1,0 +1,14 @@
+repeatrun = 10		# number of independent repeat runs
+phi = 4				# obstacle density
+rmax = 10			# shell radius
+seed = 1024			# random number seed
+datafile = data_RLG_CageShape	# output data file
+outputmode = all	# output mode
+samplepercell = 2000 500000 1000 10000 # sample parameters (see code)
+dostat = 1			# statistics flag
+statvanhove = 1		# self van hove function output flag
+statcorrfunc = 1	# correlation function output flag
+statmassdist = 1	# mass distribution function output flag
+statmsddist = 1		# MSD distribution function output flag
+binperl = 0 50		# edge and number of bins per unit length
+binperlogl = 1e-3 50	# edge and number of bins per unit log length

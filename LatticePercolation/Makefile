@@ -21,7 +21,7 @@ else
 	endif
 endif
 
-PREFIX = ../bin
+BINDIR = ../bin
 INC = AntLatticeWalk
 HBDINC = HybridAnt
 IVDINC = InvadePercolation
@@ -38,29 +38,32 @@ FLAGS = -std=c++14 -Wall -O3 -march=native
 
 all: ant msd leath
 
-ant: ant_ord ant_und ant_hbd
+ant: ant_ord ant_und
 
-ant_ord:
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -o $(PREFIX)/ant_ord_$(DIM) $(SCOMMON) $(SANT_A)
+ant_ord: $(BINDIR)
+	$(CC) $(FLAGS) -I../DIM/$(DIM) -I$(INC) -o $(BINDIR)/ant_ord_$(DIM) $(SCOMMON) $(SANT_A)
 
-ant_und:
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -o $(PREFIX)/ant_und_$(DIM) $(SCOMMON) $(SANT_B)
+ant_und: $(BINDIR)
+	$(CC) $(FLAGS) -I../DIM/$(DIM) -I$(INC) -o $(BINDIR)/ant_und_$(DIM) $(SCOMMON) $(SANT_B)
 
-ant_hbd:
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -I$(HBDINC) -I$(MKLROOT)/include -c -o $(PREFIX)/ant_mat_$(DIM).o  $(HBDINC)/ant_mat.cpp
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -I$(HBDINC) -I$(MKLROOT)/include -o $(PREFIX)/ant_hbd_$(DIM) $(PREFIX)/ant_mat_$(DIM).o $(SCOMMON) $(SANT_H) $(MKLFLAGS)
+ant_hbd: $(BINDIR)
+	$(CC) $(FLAGS) -I../DIM/$(DIM) -I$(INC) -I$(HBDINC) -I$(MKLROOT)/include -c -o $(BINDIR)/ant_mat_$(DIM).o  $(HBDINC)/ant_mat.cpp
+	$(CC) $(FLAGS) -I../DIM/$(DIM) -I$(INC) -I$(HBDINC) -I$(MKLROOT)/include -o $(BINDIR)/ant_hbd_$(DIM) $(BINDIR)/ant_mat_$(DIM).o $(SCOMMON) $(SANT_H) $(MKLFLAGS)
 
-msd:
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -o $(PREFIX)/msdlim_$(DIM) $(SCOMMON) $(SMSD)
+msd: $(BINDIR)
+	$(CC) $(FLAGS) -I../DIM/$(DIM) -I$(INC) -o $(BINDIR)/msdlim_$(DIM) $(SCOMMON) $(SMSD)
 
-leath:
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -o $(PREFIX)/leath_$(DIM) $(SCOMMON) $(SLEATH)
+leath: $(BINDIR)
+	$(CC) $(FLAGS) -I../DIM/$(DIM) -I$(INC) -o $(BINDIR)/leath_$(DIM) $(SCOMMON) $(SLEATH)
 
-invade:
-	$(CC) $(FLAGS) -IDIM/$(DIM) -I$(INC) -I$(IVDINC) -o $(PREFIX)/invade_$(DIM) $(SCOMMON) $(SINVADE)
+invade: $(BINDIR)
+	$(CC) $(FLAGS) -I../DIM/$(DIM) -I$(INC) -I$(IVDINC) -o $(BINDIR)/invade_$(DIM) $(SCOMMON) $(SINVADE)
 
 usage:
 	@echo "Usage make [ant/msd] DIM=3D"
+
+$(BINDIR):
+	mkdir -p $(BINDIR)
 
 clean:
 	rm -f *.o

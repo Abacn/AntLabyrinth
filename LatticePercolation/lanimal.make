@@ -1,4 +1,5 @@
-# Dn lattice animal
+# Dn lattice animal enumeration
+
 CC=g++
 FLAGS=--std=c++11 -O3 -IDnLatticeAnimal
 

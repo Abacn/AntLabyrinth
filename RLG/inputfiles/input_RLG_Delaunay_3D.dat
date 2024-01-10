@@ -1,0 +1,5 @@
+repeatrun = 10	# number of independent repeat runs
+N = 10000		# number of obstacles
+seed = 1025		# random number seed
+datafile = data_RLG_Delaunay_3D	# output filename
+outputmode = debug	# output level
