@@ -4,7 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include "dim.h"
 
 template <int D, typename T=double>
 class Coordinate {
@@ -17,6 +16,7 @@ class Coordinate {
   Coordinate();
   Coordinate(const T[D]);
   Coordinate(const Coordinate&);
+  Coordinate(const std::initializer_list<T> v) {}
   ~Coordinate();
 
   Coordinate<D, T>& operator+=(const Coordinate<D, T>&);
@@ -38,6 +38,7 @@ class Coordinate {
   static Coordinate<D, double> Double(const Coordinate<D, T>&);
   
   T& operator[](const unsigned int);
+  const T& operator[](const unsigned int) const;
  
   double dot(const Coordinate<D, T>&) const;
   static double dot(const Coordinate<D, T>&, const Coordinate<D, T>&);
@@ -311,6 +312,11 @@ inline T& Coordinate<D, T>::operator[](const unsigned int i)
   return x[i];
 }
 
+template <int D, typename T>
+inline const T& Coordinate<D, T>::operator[](const unsigned int i) const
+{
+  return x[i];
+}
 
 // Dot
 // ~~~

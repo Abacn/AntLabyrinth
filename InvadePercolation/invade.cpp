@@ -53,7 +53,16 @@ InvadePclt_Zn::InvadePclt_Zn(const read_input_ant &inp): InvadePclt(inp) {}
 
 InvadePclt_Dn::InvadePclt_Dn(const read_input_ant &inp): InvadePclt(inp) {}
 
-InvadePclt_DS::InvadePclt_DS(const read_input_ant &inp): InvadePclt(inp) {}
+InvadePclt_DS::InvadePclt_DS(const read_input_ant &inp): InvadePclt(inp)
+{
+#if DIM==24
+  const SiteNode* baseleech(void);
+  densebase = baseleech();
+#else
+  extern const SiteNode DENSE_BASE[];
+  densebase = DENSE_BASE;
+#endif
+}
 
 InvadePclt_Znb::InvadePclt_Znb(const read_input_ant &inp): InvadePclt(inp) {}
 
@@ -70,7 +79,18 @@ InvadePclt_Dnb::InvadePclt_Dnb(const read_input_ant &inp): InvadePclt(inp)
     }
 }
 
-InvadePclt_DSb::InvadePclt_DSb(const read_input_ant &inp): InvadePclt(inp) {}
+
+
+InvadePclt_DSb::InvadePclt_DSb(const read_input_ant &inp): InvadePclt(inp)
+{
+#if DIM==24
+  const SiteNode* baseleech(void);
+  densebase = baseleech();
+#else
+  extern const SiteNode DENSE_BASE[];
+  densebase = DENSE_BASE;
+#endif
+}
 
 InvadePclt_Zn::~InvadePclt_Zn() {}
 
@@ -205,14 +225,12 @@ int InvadePclt_Dn::ivdrun()
 
 int InvadePclt_DS::ivdrun()
 {
-#if DIM>=6 && DIM<=9
+#if DIM>=6 && DIM<=9 || DIM==24
   long nextrectime = 0;
   long csize=0;
   double weight, dtmp;
   int rp, rq;
-
-  extern const int size_densebase;
-  extern const SiteNode densebase[];
+  extern const int SIZE_DENSE_BASE;
   SiteNode zerovec_D, posvc;
   std::set<SiteNode> siterec = { {zerovec_D} };
   std::pair<std::set<SiteNode>::iterator,bool> retval;
@@ -225,7 +243,7 @@ int InvadePclt_DS::ivdrun()
     // pop the front element
     mypque.pop();
     // scan nearest neighbors
-    for(rp=0; rp<size_densebase; ++rp)
+    for(rp=0; rp<SIZE_DENSE_BASE; ++rp)
     {
       // +1
       posvc = popNode;
@@ -429,13 +447,11 @@ int InvadePclt_Dnb::ivdrun()
 
 int InvadePclt_DSb::ivdrun()
 {
-#if DIM>=6 && DIM<=9
+#if DIM>=6 && DIM<=9 || DIM==24
   long nextrectime = 0;
   long csize=0;
   double weight, dtmp;
-  
-  extern const int size_densebase;
-  extern const SiteNode densebase[];
+
   SiteNode zerovec_D, posvc;
   std::set<SiteNode> siterec = { {zerovec_D} };
   std::set<BondNode> bondrec;
@@ -537,16 +553,15 @@ std::vector<LeathBondNode> InvadePclt_Dnb::getNeighbors(LeathSiteNode const &nod
 
 std::vector<InvadePclt_DSb::BondNode> InvadePclt_DSb::getNeighbors(SiteNode const &node)
 {
-#if DIM>=6 && DIM<=9
-  extern const int size_densebase;
-  extern const SiteNode densebase[];
-  std::vector<BondNode> result(2*size_densebase);
-  for(int rp=0; rp<size_densebase; ++rp)
+#if DIM>=6 && DIM<=9 || DIM==24
+  extern const int SIZE_DENSE_BASE;
+  std::vector<BondNode> result(2*SIZE_DENSE_BASE);
+  for(int rp=0; rp<SIZE_DENSE_BASE; ++rp)
   {
     result[rp].first = node;
     result[rp].second = rp;
-    result[size_densebase+rp].first = node - densebase[rp];
-    result[size_densebase+rp].second = rp;
+    result[SIZE_DENSE_BASE+rp].first = node - densebase[rp];
+    result[SIZE_DENSE_BASE+rp].second = rp;
   }
 #else
   std::vector<BondNode> result;
@@ -607,7 +622,7 @@ int main(int argc, const char * argv[])
         case(2): std::cout << "Triangular lattice analytical result available: p_c = 1/2" << std::endl; return 0;
         // D3 D4 D5. Note that in 3D there are two dense packings where threshold are pretty similar but not identical
         case(3): case(4): case(5): ivdwalker = new InvadePclt_Dn(input); break;
-        case(6): case(7): case(8): case(9): ivdwalker = new InvadePclt_DS(input); break;
+        case(6): case(7): case(8): case(9): case(24): ivdwalker = new InvadePclt_DS(input); break;
       }
       break;
     case(10):
@@ -626,7 +641,7 @@ int main(int argc, const char * argv[])
         case(2): std::cout << "Triangular lattice analytical result available: p_c = 2 sin (pi/18)" << std::endl; return 0;
         // D3 D4 D5. Note that in 3D there are two dense packings where threshold are pretty similar but not identical
         case(3): case(4): case(5): ivdwalker = new InvadePclt_Dnb(input); break;
-        case(6): case(7): case(8): case(9): ivdwalker = new InvadePclt_DSb(input); break;
+        case(6): case(7): case(8): case(9): case(24): ivdwalker = new InvadePclt_DSb(input); break;
       }
       break;
     default:

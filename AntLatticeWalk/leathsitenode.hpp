@@ -24,7 +24,13 @@ typedef short IdxType;
 
 typedef Coordinate<DIM, IdxType> LeathSiteNode;
 
-typedef std::pair< Coordinate<DIM, IdxType>, short> LeathBondNode;
+#if DIM<20
+typedef short BondIdxType;
+#else
+typedef int BondIdxType;
+#endif
+
+typedef std::pair< Coordinate<DIM, IdxType>, BondIdxType> LeathBondNode;
 #endif
 
 namespace std {
@@ -52,7 +58,7 @@ namespace std {
   
   // custom hash function for bond node
   template <int D>
-  struct hash<std::pair<Coordinate<D, IdxType>, short> >
+  struct hash<std::pair<Coordinate<D, IdxType>, BondIdxType> >
   {
     std::size_t operator()(const Coordinate<D, IdxType>& k) const
     {

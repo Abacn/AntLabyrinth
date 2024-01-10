@@ -8,13 +8,13 @@
 
 #include "leathsitenode.hpp"
 
-extern const int size_densebase;
+extern const int SIZE_DENSE_BASE;
 
 #if 6==DIM
-const int size_densebase = 36;
-extern const Coordinate<8, IdxType> densebase[];
+const int SIZE_DENSE_BASE = 36;
+extern const Coordinate<8, IdxType> DENSE_BASE[];
 // dense packing base vectors in 6D (E6)
-const Coordinate<8, IdxType> densebase[size_densebase] = {
+const Coordinate<8, IdxType> DENSE_BASE[SIZE_DENSE_BASE] = {
   { 1, 1, 1, 1, -1, -1, -1, -1},
   { 1, 1, 1, -1, 1, -1, -1, -1},
   { 1, 1, 1, -1, -1, 1, -1, -1},
@@ -53,10 +53,10 @@ const Coordinate<8, IdxType> densebase[size_densebase] = {
   { 0, 0, 0, 0, 0, 2, -2, 0}
 };
 #elif 7==DIM
-const int size_densebase = 63;
-extern const Coordinate<8, IdxType> densebase[];
+const int SIZE_DENSE_BASE = 63;
+extern const Coordinate<8, IdxType> DENSE_BASE[];
 // dense packing base vectors in 7D (E7)
-const Coordinate<8, IdxType> densebase[size_densebase] = {
+const Coordinate<8, IdxType> DENSE_BASE[SIZE_DENSE_BASE] = {
   { 1, 1, 1, 1, -1, -1, -1, -1},
   { 1, 1, 1, -1, 1, -1, -1, -1},
   { 1, 1, 1, -1, -1, 1, -1, -1},
@@ -122,10 +122,10 @@ const Coordinate<8, IdxType> densebase[size_densebase] = {
   { 0, 0, 0, 0, 0, 0, 2, -2}
 };
 #elif 8==DIM
-const int size_densebase = 120;
-extern const Coordinate<8, IdxType> densebase[];
+const int SIZE_DENSE_BASE = 120;
+extern const Coordinate<8, IdxType> DENSE_BASE[];
 // dense packing base vectors in 8D (E8)
-const Coordinate<8, IdxType> densebase[size_densebase] = {
+const Coordinate<8, IdxType> DENSE_BASE[SIZE_DENSE_BASE] = {
   { 1, 1, 1, 1, 1, 1, 1, 1},
   { 1, 1, 1, 1, -1, -1, -1, -1},
   { 1, 1, 1, -1, 1, -1, -1, -1},
@@ -248,10 +248,10 @@ const Coordinate<8, IdxType> densebase[size_densebase] = {
   { 0, 0, 0, 0, 0, 0, 2, -2}
 };
 #elif 9==DIM
-const int size_densebase = 136;
-extern const Coordinate<9, IdxType> densebase[];
+const int SIZE_DENSE_BASE = 136;
+extern const Coordinate<9, IdxType> DENSE_BASE[];
 // dense packing base vectors in 9D (L9)
-const Coordinate<9, IdxType> densebase[size_densebase] = {
+const Coordinate<9, IdxType> DENSE_BASE[SIZE_DENSE_BASE] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 0},
   { 1, 1, 1, 1, -1, -1, -1, -1, 0},
   { 1, 1, 1, -1, 1, -1, -1, -1, 0},
@@ -389,8 +389,12 @@ const Coordinate<9, IdxType> densebase[size_densebase] = {
   { 0, 0, 0, 0, 0, 0, 0, 2, 2},
   { 0, 0, 0, 0, 0, 0, 0, 2, -2}
 };
+#elif 24==DIM
+const int SIZE_DENSE_BASE = 98280;
+extern const Coordinate<DIM, IdxType> DENSE_BASE[];
+const Coordinate<DIM, IdxType> DENSE_BASE[1]; // not used
 #else
-const int size_densebase = 1;
-extern const Coordinate<DIM, IdxType> densebase[];
-const Coordinate<DIM, IdxType> densebase[size_densebase] = { {0} };
+const int SIZE_DENSE_BASE = 1;
+extern const Coordinate<DIM, IdxType> DENSE_BASE[];
+const Coordinate<DIM, IdxType> DENSE_BASE[SIZE_DENSE_BASE];
 #endif

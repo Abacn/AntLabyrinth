@@ -135,6 +135,8 @@ public:
 #endif
   using SiteNode = Coordinate<ndim, IdxType>;
   using PQueueNode = PQueueNode_T<SiteNode>;
+private:
+  const SiteNode* densebase;
 };
 
 // dense packing lattice, bond percolation
@@ -150,9 +152,10 @@ public:
   static constexpr int ndim = DIM;
 #endif
   using SiteNode = Coordinate<ndim, IdxType>;
-  using BondNode = std::pair< Coordinate<ndim, IdxType>, short>;
+  using BondNode = std::pair< Coordinate<ndim, IdxType>, BondIdxType>;
   using BQueueNode = PQueueNode_T<BondNode>;
 private:
+  const SiteNode* densebase;
   std::vector<BondNode> getNeighbors(SiteNode const &node);
 };
 

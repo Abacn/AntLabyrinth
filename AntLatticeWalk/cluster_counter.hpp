@@ -8,6 +8,7 @@
 #ifndef cluster_counter_h
 #define cluster_counter_h
 
+#include "dim.h"
 #include "grid_field.h"
 
 // The switch of percolation detection. Comment out if off

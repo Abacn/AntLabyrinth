@@ -7,6 +7,7 @@
 
 #include "read_input.h"
 #include "coordinate.h"
+#include "dim.h"
 
 //================================================================
 //
