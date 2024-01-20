@@ -90,7 +90,7 @@ pmsd_counter(0)
   collisionrate = 0.;
   nlastbuildnlist = 0;
   nextsampletime = sampletimedelt = 1e20; // set to very large value to dismiss sample before measure switch on
-  
+
   if (calcpmsd)
   {
     sums_pmsd = new double[N];
@@ -220,7 +220,45 @@ void Box::ReadPositions(const std::string filename, const std::string shiftname/
   else
   {
     int dim;
-    infile >> dim; infile.ignore(256, '\n');
+    // Two format is supported:
+    // (i) Format described in https://cims.nyu.edu/~donev/Packing/C++/
+    // (ii) raw coordinates
+    // first check what kind of file it is
+    std::string line;
+    std::getline(infile, line);
+    if (line.size() > 3)
+    {
+      // read raw r
+      infile.seekg(0, std::ios::beg);
+
+      for (int i = 0; i < N; i++)
+      {
+        s[i].m = 1;
+        for (int k = 0; k < DIM; k++)
+        {
+          infile >> s[i].x[k]; // read in position
+        }
+        if (rx > 0.0)
+        {
+          infile >> s[i].r; // read r
+        }
+        else
+        {
+          s[i].r = 1.0; // monodisperse, just assign as rinitial
+          infile.ignore(256, '\n');
+        }
+        s[i].i = i;
+        s[i].lutime = gtime;
+        s[i].species = 1;
+      }
+      return;
+    }
+    else
+    {
+      dim = atoi(line.c_str());
+      infile.ignore(256, '\n');
+    }
+
     if (dim != DIM)  // quit if dimensions don't match
     {
       std::cout << "error, dimensions don't match" << std::endl;
@@ -789,7 +827,7 @@ int Box::ProcessEvent()
   int retval = -1;
 
   Statistics(e.time);
-  
+
   if ((e.j>=0)&&(e.j<N))  // collision!
   {
     retval = 0;

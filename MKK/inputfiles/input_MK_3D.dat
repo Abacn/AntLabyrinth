@@ -11,6 +11,7 @@ double mintime = 0.0625			// minimum runtime print result
 double maxtime = 100			// maximum runtime print result
 double maxcollisionrate = 1e10	// maximum collision rate tolerated
 double shiftscale = -1			// random shift scale. -1 set to flat shift, 0 reduced to hard sphere.
+int calcpmsd = 1                // mode of MSD calculation
 char* readfile = new			// read in prefix *_config.dat, *_v.dat, *_shift.dat; if new, creates new configs
 char* writefile = md.dat		// contains final configuration of spheres (deprecated)
 char* configprefixes = null		// configuration prefixes: *_initial/*_compressed/*_last.dat if null, turned off

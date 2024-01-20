@@ -6,7 +6,11 @@ else
     ifeq ($(UNAME_S),Linux) # cluster in school
         ifeq (, $(shell which icpc 2>/dev/null))
             CC = g++
-            COMPFLG = -I$(INCLUDE)
+            ifeq (, $(INCLUDE))
+                COMPFLG =
+            else
+                COMPFLG = -I$(INCLUDE)
+            endif
             # condor
             ifneq (, $(shell which condor_submit 2>/dev/null))
                 LINKERFLAGS = -static
@@ -15,7 +19,11 @@ else
             endif
         else
             CC = icpc
-            COMPFLG = -I$(INCLUDE)
+            ifeq (, $(INCLUDE))
+                COMPFLG =
+            else
+                COMPFLG = -I$(INCLUDE)
+            endif
             LINKERFLAGS = 
         endif
     endif
@@ -51,4 +59,4 @@ $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
 clean :
-	rm -f $(BINFULLNAME) build/*.o build/*.d  *.test
+	rm -f $(BINFULLNAME) build/$(DIM)/*.o build/$(DIM)/*.d  *.test
