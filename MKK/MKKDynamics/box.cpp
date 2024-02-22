@@ -39,7 +39,6 @@ void vectoridx_(vector<>& vec, const int i)
 }
 
 const uint64_t Box::COUNT_LIMIT;
-
 //==============================================================
 //==============================================================
 //  Class Box: Fills box with hardspheres to given packing fraction
@@ -748,13 +747,18 @@ void Box::PredictCollision(int i, int j, const vector<> &shift, collision* ccoll
 
     if (isnan(ctimej))
     {
-      std::cout << "error, " << i << " and " << j <<
-        " are overlapping at time " << gtime << std::endl;
-      std::cout << "A, B, C = " << A << " " << " " << B <<
-        " " << " " << C << std::endl;
-      std::cout << "unknown error" << std::endl;
-      // WriteLastConfiguration("config_onerror.dat");
-      PrintStatistics();
+      static clock_type lasterror_time = steady_clock::now();
+      duration_type t_last = steady_clock::now() - lasterror_time;
+      if (t_last.count() > 1.0)  // avoid error flood
+      {
+        std::cout << "error, " << i << " and " << j <<
+          " are overlapping at time " << gtime << std::endl;
+        std::cout << "A, B, C = " << A << " " << " " << B <<
+          " " << " " << C << std::endl;
+        // WriteLastConfiguration("config_onerror.dat");
+        PrintStatistics();
+        lasterror_time = steady_clock::now();
+      }
     }
 
     if (ctimej < gtime)
