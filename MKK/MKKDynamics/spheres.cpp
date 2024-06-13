@@ -115,7 +115,7 @@ int main(int argc, char **argv)
   sigma = b.rmeanfin*2.0;
   std::cout << "Procedure 2: equilibrate ..." << std::endl;
   double eqtime = std::min(1e3 / DIM, maxtime / 4.0);
-  while ((b.gtime + b.rtime)/sigma < eqtime * 0.1 && MSD < 20.0 / DIM)
+  while ((b.gtime + b.rtime)/sigma < eqtime && MSD < 20.0 / DIM)
   {
     b.Process(mult*input.eventspercycle, 1);
     if((b.gtime + b.rtime)/sigma > tprint)
