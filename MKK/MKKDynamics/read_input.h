@@ -28,7 +28,13 @@ public:
   char configprefixes[NAME_LEN]; // file to write the configurations
   char datafile[NAME_LEN];       // file to write statistics
   int outconfig_switch;        // save configuration or not
-  int calcpmsd;                // calculate particle MSD/MQD or not
+  // calculate particle MSD/MQD or not
+  // 0 - disabled
+  // 1 - enable particle MSD/MQD
+  // 2 - enabled 1 + distribution of MSD/MQD
+  // 3 - preserved
+  // a bit at 4 - enable viscosity
+  int calcpmsd;
   int read(const char* fname);
 };
 

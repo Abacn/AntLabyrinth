@@ -108,7 +108,7 @@ public:
 // Statistics
   double Energy();
   void CallibVelocity();
-  std::pair<double, double> Pressure();
+  std::vector<double> Thermodynamics();
   double PackingFraction();
   void PrintStatistics(int mode=0);
   void RunTime();
@@ -193,6 +193,7 @@ private:
   uint64_t nlastbuildnlist;           // count number of nlist build
   clock_type tstart, tlastresize;     // run time of program
   duration_type tnlist;
+  double visaccu[DIM][DIM];           // viscosity accumulant
 
   // internal variables
   const int calcpmsd;                 // flag calculate particle MSD (1) or not (0), set to (2) also output distribution

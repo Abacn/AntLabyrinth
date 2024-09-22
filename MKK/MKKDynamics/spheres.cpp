@@ -93,8 +93,8 @@ int main(int argc, char **argv)
       if ((b.gtime + b.rtime) / sigma > tprint)
       {
         b.Synchronize(true);
-        auto pressurepair = b.Pressure();
-        output << (b.gtime + b.rtime) / sigma << '\t' << b.PackingFraction() << '\t' << pressurepair.first << std::endl;
+        auto thermos = b.Thermodynamics();
+        output << (b.gtime + b.rtime) / sigma << '\t' << b.PackingFraction() << '\t' << thermos[0] << std::endl;
         tprint = tprint * 1.1892071150027211;
       }
     }
@@ -112,7 +112,6 @@ int main(int argc, char **argv)
 
   //procedure 2: equilibrate
   double MSD=0., rtyp2=0., MQD=0., dtmp;
-  sigma = b.rmeanfin*2.0;
   std::cout << "Procedure 2: equilibrate ..." << std::endl;
   double eqtime = std::min(1e3 / DIM, maxtime / 4.0);
   while ((b.gtime + b.rtime)/sigma < eqtime && MSD < 20.0 / DIM)
@@ -131,8 +130,13 @@ int main(int argc, char **argv)
       dtmp = sigma*sigma;
       MSD = MSD/input.N/dtmp;
       MQD = MQD/input.N/(dtmp*dtmp);
-      auto pressurepair = b.Pressure();
-      output << (b.gtime+b.rtime)/sigma << '\t' << pressurepair.first << '\t' << MSD << '\t' << MQD << std::endl;
+      auto thermos = b.Thermodynamics();
+      output << (b.gtime + b.rtime) / sigma << '\t' << thermos[0];
+      if (input.calcpmsd & 4)
+      {
+        output << '\t' << thermos[2];
+      }
+      output << '\t' << MSD << '\t' << MQD << std::endl;
       tprint = tprint * 1.1892071150027211;
     }
   }
@@ -163,8 +167,13 @@ int main(int argc, char **argv)
     MSD = MSD/input.N/dtmp;
     rtyp2 = exp(rtyp2/input.N)/dtmp;
     MQD = MQD/input.N/(dtmp*dtmp);
-    auto pressurepair = b.Pressure();
-    outMSD << (b.gtime+b.rtime)/sigma << '\t' << MSD << '\t' << rtyp2 << '\t' << MQD << '\t' << pressurepair.first << std::endl;
+    auto thermos = b.Thermodynamics();
+    outMSD << (b.gtime + b.rtime) / sigma << '\t' << MSD << '\t' << rtyp2 << '\t' << MQD << '\t' << thermos[0];
+    if (input.calcpmsd & 4)
+    {
+      outMSD << '\t' << thermos[2];
+    }
+    outMSD << std::endl;
     tprint = tprint * 1.1892071150027211; // 2^(1/4)
   }
   output.close();

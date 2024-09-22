@@ -12,7 +12,7 @@
 #include "dim.h"
 
 // MACROS
-#define VOLUMESPHERE pow(M_PI,((double)(DIM))/2.)/exp(lgamma(1+((double)(DIM))/2.)) // volume prefactor for sphere
+extern const double VOLUMESPHERE;  // volume prefactor for sphere
 #define DBL_EPSILON  2.2204460492503131e-016 // smallest # such that 1.0+DBL_EPSILON!=1.0
 #define DBL_LARGE 1.0e8
 

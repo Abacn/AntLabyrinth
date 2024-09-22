@@ -18,9 +18,11 @@
 
 #include "box.h"
 #include "utility.h"
+#include <algorithm>
 #include <iostream>
 #include <stdlib.h>
 #include <iomanip>
+#include <vector>
 
 using std::chrono::steady_clock;
 // unfortunate bad programming
@@ -90,13 +92,13 @@ pmsd_counter(0)
   nlastbuildnlist = 0;
   nextsampletime = sampletimedelt = 1e20; // set to very large value to dismiss sample before measure switch on
 
-  if (calcpmsd)
+  if (calcpmsd & 3)
   {
     sums_pmsd = new double[N];
     sum_pmqd = 0.;
     for(int i = 0; i < N; i++)
       sums_pmsd[i] = 0.0;
-    if (calcpmsd == 2)
+    if ((calcpmsd & 3) == 2)
     {
       dist_sd = new uint64_t[sd_nbin];
       for(int i = 0; i < sd_nbin; i++)
@@ -147,6 +149,9 @@ pmsd_counter(0)
     if (i + 1 < N)
       allshifts[i] = new vector<>[N - i - 1];
   }
+  for (int i = 0; i < DIM; ++i)
+    for (int j = 0; j < DIM; ++j)
+      visaccu[i][j] = 0.;
   tmpbox = this;
 }
 
@@ -157,10 +162,10 @@ Box::~Box()
 {
   delete[] s;
   delete[] x0;
-  if (calcpmsd)
+  if (calcpmsd & 3)
   {
     delete [] sums_pmsd;
-    if (calcpmsd == 2)
+    if ((calcpmsd & 3 ) == 2)
     {
       delete [] dist_sd;
     }
@@ -926,15 +931,17 @@ void Box::Collision(Event e)
   gtime = ctime;
 
   // Update positions and cells of i and j to ctime
-  s[i].x += s[i].v*(gtime-s[i].lutime);
-  s[j].x += s[j].v*(gtime-s[j].lutime);
+  double dti = gtime - s[i].lutime;
+  double dtj = gtime - s[j].lutime;
+  s[i].x += s[i].v * dti;
+  s[j].x += s[j].v * dtj;
 
   // Check to see if a diameter apart
   double r_sum = (s[i].r + s[j].r)*(rscale + rinitial*growthrate*gtime);
 
   // make unit vector out of displacement vector
-  vector<> dhat = s[i].x - s[j].x - e.shift;
-  double dhatsqr = dhat.norm_squared();
+  vector<> dhat_unorm = s[i].x - s[j].x - e.shift;
+  double dhatsqr = dhat_unorm.norm_squared();
   double distance = dhatsqr - r_sum*r_sum;
   if (distance * distance > 10. * DBL_EPSILON)
   {
@@ -943,11 +950,9 @@ void Box::Collision(Event e)
     std::cout << s[j].x << "\n";
     std::cout << i << " " << j << " overlap " << distance << std::endl;
   }
-  s[i].lutime = gtime;
-  s[j].lutime = gtime;
 
   double dhatmagnitude = sqrt(dhatsqr);
-  dhat /= dhatmagnitude; // normalize
+  vector<> dhat = dhat_unorm / dhatmagnitude; // normalize
 
   vector<> vipar = dhat*vector<>::dot(s[i].v, dhat);  // parallel comp. vi
   vector<> vjpar = dhat*vector<>::dot(s[j].v, dhat);  // parallel comp. vj
@@ -959,8 +964,31 @@ void Box::Collision(Event e)
   double jrgrate = rinitial * s[j].r * growthrate;
 
   // particles has same mass ?
-  s[i].v = vjpar + dhat*jrgrate + viperp;
-  s[j].v = vipar - dhat*irgrate + vjperp;
+  vector<> viafter = vjpar + dhat*jrgrate + viperp;
+  vector<> vjafter = vipar - dhat*irgrate + vjperp;
+  vector<> dvi = viafter - s[i].v;
+
+  // viscosity accumulant
+  if (calcpmsd & 4)
+  {
+    for (int a1 = 0; a1 < DIM; ++a1)
+    {
+      for (int a2 = 0; a2 < DIM; ++a2)
+      {
+        // dot r_k^a dot r_k^a' Delta t_c for i and j
+        visaccu[a1][a2] += s[i].v[a1] * viafter[a2] * dti;
+        visaccu[a1][a2] += s[j].v[a1] * viafter[a2] * dtj;
+
+        // Delta dot r_i^a d_ij^a' TODO: check is += or -=
+        visaccu[a1][a2] += dvi[a1] * dhat_unorm[a2];
+      }
+    }
+  }
+
+  s[i].lutime = gtime;
+  s[j].lutime = gtime;
+  s[i].v = viafter;
+  s[j].v = vjafter;
 
   // momentum exchange
   double xvelocity;   // exchanged velocity
@@ -1012,17 +1040,51 @@ void Box::CallibVelocity()
 }
 
 //==============================================================
-// Computes the pressure
-// return pressure and energy
+// Thermodynamics quantity calculation
+//
+// Computes the pressure, also compute viscosity if enabled
+// return pressure, energy, shear viscosity
 //==============================================================
-std::pair<double, double> Box::Pressure()
+std::vector<double> Box::Thermodynamics()
 {
   double E = Energy();
   double tnow = rtime + gtime;
-  double pressure = 1 + xmomentum / (2. * E * N * (tnow-plasttime));
+  double telapse = tnow - plasttime;
+  // reduced pressure : p / rho k_B T
+  double pressure = 1 + xmomentum / (2. * E * N * telapse);
+  double viscosity = 0.;
+
+  // reset viscosity accumulant
+  if (calcpmsd & 4)
+  {
+    double accu = 0.;
+    double diag = 0.;
+    for (int i = 0; i < DIM; ++i)
+    {
+      diag += visaccu[i][i];
+    }
+    diag /= DIM;
+    for (int i = 0; i < DIM; ++i)
+    {
+      for (int j = 0; j < DIM; ++j)
+      {
+        if (i == j)
+        {
+          accu += (visaccu[i][j] - diag) * (visaccu[i][j] - diag);
+        }
+        else
+        {
+          accu += visaccu[i][j] * visaccu[i][j];
+        }
+      }
+    }
+    // box volume set unit sphere diameter
+    viscosity = accu / (2 * (DIM - 1) * (DIM + 2) * boxvolume * tnow) * pow(2.0 * rmeanfin, DIM - 1);
+  }
+
   plasttime = tnow;
   xmomentum = 0;
-  return { pressure, E };
+  return { pressure, E, viscosity };
 }
 
 //==============================================================
@@ -1106,7 +1168,7 @@ void Box::Process(int n, int option, double nextt)
 //==============================================================
 void Box::Statistics(double ctime)
 {
-  if (calcpmsd)
+  if (calcpmsd & 3)
   {
     double currentt = ctime + rtime;
     if(currentt >= nextsampletime)
@@ -1117,7 +1179,7 @@ void Box::Statistics(double ctime)
       for (int i=0; i<N; ++i)
       {
         msd = vector<>::norm_squared(s[i].x + s[i].v*(deltt-s[i].lutime), x0[i]);
-        if (calcpmsd == 2)
+        if ((calcpmsd & 3) == 2)
         {
           // collect distribution of square displacements
           int use_n = (int)((log2(msd * DIM / scalefactor) - sd_left) * sd_delta) + 1;
@@ -1145,7 +1207,7 @@ void Box::Statistics(double ctime)
 //==============================================================
 void Box::PrintStatistics(int mode/*=0*/)
 {
-  if (calcpmsd && pmsd_counter>10)
+  if ((calcpmsd & 3) && pmsd_counter>10)
   {
     // summary: MSD, MQD, particle MSD
     std::ofstream ofs("dbgsummary.dat");
@@ -1162,7 +1224,7 @@ void Box::PrintStatistics(int mode/*=0*/)
     psmsd /= N*scalefactor*scalefactor*pmsd_counter*pmsd_counter;
     ofs << pmsd << '\t' << pmqd << '\t' << psmsd << '\n';
     ofs.close();
-    if (calcpmsd == 2)
+    if ((calcpmsd & 3) == 2)
     {
       // distribution of SD
       std::ofstream ofs2("sddist.dat");
@@ -1186,17 +1248,17 @@ void Box::PrintStatistics(int mode/*=0*/)
       ofs3.close();
     }
   }
-  auto pressurepair = Pressure();
+  auto thermos = Thermodynamics();
   std::cout << "packing fraction = " << PackingFraction() << std::endl;
   if(0==mode)
   {
     std::cout << "gtime = " << gtime << std::endl;
     std::cout << "processing # events = " << ncollisions+ntransfers+nchecks << ", # collisions = " << ncollisions << ", # transfers = " << ntransfers << ", # checks = " << nchecks << std::endl;
     std::cout << "growthrate = " << growthrate << std::endl;
-    std::cout << "reduced pressure = " << pressurepair.first << std::endl;
+    std::cout << "reduced pressure = " << thermos[0] << std::endl;
   }
   std::cout << "total time = " << rtime+gtime << std::endl;
-  std::cout << "kinetic energy = " << pressurepair.second << std::endl;
+  std::cout << "kinetic energy = " << thermos[1] << std::endl;
   std::cout << "total # events = " << toteventscheck+toteventscoll+toteventstransfer << ", # collisions = " << toteventscoll << ", # transfers = " << toteventstransfer << ", # checks = " << toteventscheck << std::endl;
   std::cout << "collisionrate = " << collisionrate << std::endl;
   std::cout << "-----------------" << std::endl;
@@ -1210,7 +1272,19 @@ void Box::Synchronize(bool rescale)
 {
   for (int i=0; i<N; i++)
   {
-    s[i].x = s[i].x + s[i].v*(gtime-s[i].lutime);
+    // viscosity accumulant
+    double dt = gtime-s[i].lutime;
+    if (calcpmsd & 4)
+    {
+      for (int a1 = 0; a1 < DIM; ++a1)
+      {
+        for (int a2 = 0; a2 < DIM; ++a2)
+        {
+          visaccu[a1][a2] += s[i].v[a1] * s[i].v[a2] * dt;
+        }
+      }
+    }
+    s[i].x = s[i].x + s[i].v*dt;
     s[i].nextevent.time -= gtime;
 
     if (s[i].nextevent.time < 0.)
@@ -1255,6 +1329,12 @@ void Box::Reset()
   rtime = 0.0;
   xmomentum = 0.0;
   plasttime = 0.0;
+  if (calcpmsd & 4)
+  {
+    for (int i = 0; i < DIM; ++i)
+      for (int j = 0; j < DIM; ++j)
+        visaccu[i][j] = 0;
+  }
   SetInitialEvents();
   //check the mean radius
   //  double r_mean=0, rmin=1e6, rmax=0;

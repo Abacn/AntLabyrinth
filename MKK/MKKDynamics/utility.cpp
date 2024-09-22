@@ -6,6 +6,8 @@
 std::mt19937_64 rg;
 std::uniform_real_distribution <> rrand;
 
+const double VOLUMESPHERE = pow(M_PI, ((double)(DIM)) / 2.) / exp(lgamma(1 + ((double)(DIM)) / 2.));
+
 // get diameter range (1-x) - (1+x)
 double diameterRange(double polydispersity)
 {
