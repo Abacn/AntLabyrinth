@@ -23,6 +23,7 @@ public:
   double shiftscale;                   // random shift scale
   long seed;
   double tprint;
+  double t_dist_start;          // smallest time interval if run time dependent displacement distribution
   char readfile[NAME_LEN];     // file with configuration; if new, creates new
   char writefile[NAME_LEN];    // file to write configuration
   char configprefixes[NAME_LEN]; // file to write the configurations

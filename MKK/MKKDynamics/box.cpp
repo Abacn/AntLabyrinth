@@ -27,17 +27,17 @@
 using std::chrono::steady_clock;
 // unfortunate bad programming
 // need some raw functions
-Box* tmpbox;
+Box* global_box;
 double normfunc_(const int i, const int j, vector<> &vec)
 {
   vector<> minimg;
-  tmpbox->getshift(i, j, minimg, vec);
+  global_box->getshift(i, j, minimg, vec);
   return minimg.norm_squared();
 }
 
 void vectoridx_(vector<>& vec, const int i)
 {
-  return tmpbox->vectoridx(vec, i);
+  return global_box->vectoridx(vec, i);
 }
 
 const uint64_t Box::COUNT_LIMIT;
@@ -98,7 +98,7 @@ pmsd_counter(0)
     sum_pmqd = 0.;
     for(int i = 0; i < N; i++)
       sums_pmsd[i] = 0.0;
-    if ((calcpmsd & 3) == 2)
+    if (calcpmsd & 2)
     {
       dist_sd = new uint64_t[sd_nbin];
       for(int i = 0; i < sd_nbin; i++)
@@ -108,6 +108,15 @@ pmsd_counter(0)
   else
   {
     sums_pmsd = nullptr;
+  }
+
+  if (calcpmsd & 8)
+  {
+    disp_stat = new Displacements(this, input.t_dist_start, 10, "t_msd_dist");
+  }
+  else
+  {
+    disp_stat = nullptr;
   }
   std::cout << "   rx : " << rx << '\n';
   std::cout << "   rinitial : " << rinitial << '\n';
@@ -149,10 +158,12 @@ pmsd_counter(0)
     if (i + 1 < N)
       allshifts[i] = new vector<>[N - i - 1];
   }
+
   for (int i = 0; i < DIM; ++i)
     for (int j = 0; j < DIM; ++j)
       visaccu[i][j] = 0.;
-  tmpbox = this;
+
+  global_box = this;
 }
 
 //==============================================================
@@ -165,7 +176,7 @@ Box::~Box()
   if (calcpmsd & 3)
   {
     delete [] sums_pmsd;
-    if ((calcpmsd & 3 ) == 2)
+    if (calcpmsd & 2)
     {
       delete [] dist_sd;
     }
@@ -176,6 +187,7 @@ Box::~Box()
   }
   delete [] allshifts;
   if (neighs != nullptr) delete neighs;
+  if (disp_stat != nullptr) delete disp_stat;
 }
 
 
@@ -1179,7 +1191,7 @@ void Box::Statistics(double ctime)
       for (int i=0; i<N; ++i)
       {
         msd = vector<>::norm_squared(s[i].x + s[i].v*(deltt-s[i].lutime), x0[i]);
-        if ((calcpmsd & 3) == 2)
+        if (calcpmsd & 2)
         {
           // collect distribution of square displacements
           int use_n = (int)((log2(msd * DIM / scalefactor) - sd_left) * sd_delta) + 1;
@@ -1197,6 +1209,10 @@ void Box::Statistics(double ctime)
       }
       while (nextsampletime < currentt);
     }
+  }
+  if (disp_stat != nullptr)
+  {
+    disp_stat->record(ctime);
   }
 }
 
@@ -1224,7 +1240,7 @@ void Box::PrintStatistics(int mode/*=0*/)
     psmsd /= N*scalefactor*scalefactor*pmsd_counter*pmsd_counter;
     ofs << pmsd << '\t' << pmqd << '\t' << psmsd << '\n';
     ofs.close();
-    if ((calcpmsd & 3) == 2)
+    if (calcpmsd & 2)
     {
       // distribution of SD
       std::ofstream ofs2("sddist.dat");
@@ -1249,6 +1265,10 @@ void Box::PrintStatistics(int mode/*=0*/)
     }
   }
   auto thermos = Thermodynamics();
+  if (disp_stat != nullptr)
+  {
+    disp_stat->dump();
+  }
   std::cout << "packing fraction = " << PackingFraction() << std::endl;
   if(0==mode)
   {
@@ -1362,6 +1382,7 @@ void Box::StartMeasure(double nextsampletime, double sampletimedelt)
   Reset();
   this->nextsampletime = nextsampletime * rmeanfin * 2.0;
   this->sampletimedelt = sampletimedelt * rmeanfin * 2.0;
+  if (disp_stat != nullptr) disp_stat->initial_snapshot();
 }
 
 //==============================================================

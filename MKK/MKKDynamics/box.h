@@ -34,10 +34,12 @@
 #include "heap.h"
 #include "nlist.h"
 #include "utility.h"
+#include "displacements.h"
 
 #define M 1.0
 
 class Box;
+class Displacements;
 
 //---------------------------------------------------------------------------
 // Class neighbor
@@ -148,7 +150,7 @@ public:
   // neighbor list
   nlist* neighs;
   vector<> **allshifts;             // shift table
-  
+
   // snapshot position
   vector<> *x0;
 
@@ -202,6 +204,7 @@ private:
   uint64_t create_counter;            // counter number of attempt in create sphere
   uint64_t pmsd_counter;              // counter number of particle MSD sample
   static const uint64_t COUNT_LIMIT = 10000000ULL;  // average limit number of create sphere attempt per sphere
+  Displacements* disp_stat;
 };
 
 #endif
