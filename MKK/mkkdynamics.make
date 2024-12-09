@@ -35,7 +35,7 @@ else
 endif
 
 CPPFLAGS = -std=c++11 -march=haswell -O2 -Wall -Wno-unused-variable -Wno-overloaded-virtual $(COMPFLG)
-SOURCES = neighbor.cpp spheres.cpp box.cpp sphere.cpp event.cpp heap.cpp nlist.cpp read_input.cpp utility.cpp displacements.cpp
+SOURCES = neighbor.cpp spheres.cpp box.cpp sphere.cpp event.cpp heap.cpp nlist.cpp read_input.cpp utility.cpp displacements.cpp pressuretensor.cpp
 
 SRCDIR = MKKDynamics
 BUILDDIR = build/$(DIM)

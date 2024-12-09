@@ -114,7 +114,7 @@ void PressureTensor::dump() const
     double t = t_dumpinterval * (1LL << i);
     // box volume set unit sphere diameter
     double viscosity = vals[i] / (2.0 * (DIM - 1) * (DIM + 2) * box->boxvolume * t * counts[i]) * pow(sigma, DIM - 1);
-    ofs << t / sigma << "\t" << viscosity << "\t" << counts[i] << "\n";
+    ofs << t / sigma << "\t" << viscosity << "\n";
   }
 }
 
