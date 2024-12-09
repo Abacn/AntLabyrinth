@@ -44,8 +44,14 @@ int read_input::read(const char *fname)
   infile.get(buf, BUFSIZE,'='); infile.get(c); infile >> maxcollisionrate;
   infile.get(buf, BUFSIZE,'='); infile.get(c); infile >> shiftscale;
   infile.get(buf, BUFSIZE,'='); infile.get(c); infile >> calcpmsd;
-  infile.get(buf, BUFSIZE, '='); infile.get(c); infile >> t_dist_start;
-  infile.get(buf, BUFSIZE,'='); infile.get(c);
+  infile.get(buf, BUFSIZE, '=');
+  if (strstr(buf, "t_dist_start") != NULL)
+  {
+    // read t_dist_start
+    infile.get(c); infile >> t_dist_start;
+    infile.get(buf, BUFSIZE, '=');
+  }
+  infile.get(c);
   infile.width(NAME_LEN-1); infile >> readfile;
   infile.get(buf, BUFSIZE,'='); infile.get(c);
   infile.width(NAME_LEN-1); infile >> writefile;
