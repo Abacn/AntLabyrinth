@@ -34,12 +34,14 @@
 #include "heap.h"
 #include "nlist.h"
 #include "utility.h"
+#include "pressuretensor.h"
 #include "displacements.h"
 
 #define M 1.0
 
 class Box;
 class Displacements;
+class PressureTensor;
 
 //---------------------------------------------------------------------------
 // Class neighbor
@@ -101,7 +103,10 @@ public:
   void Process(int n, int option=0, double nextt=0.);
   void Statistics(double ctime);
   void Synchronize(bool rescale);
-  void StartMeasure(double nextsampletime, double sampletimedelt);
+  void StartMeasure(
+    double nextsampletime, double sampletimedelt, // equial-space time intervals
+    double tmin, double tmax // exponentially increasing time intervals
+    );
   void Reset();
 
 // Debugging
@@ -110,7 +115,7 @@ public:
 // Statistics
   double Energy();
   void CallibVelocity();
-  std::vector<double> Thermodynamics();
+  std::vector<double> Pressure();
   double PackingFraction();
   void PrintStatistics(int mode=0);
   void RunTime();
@@ -195,7 +200,6 @@ private:
   uint64_t nlastbuildnlist;           // count number of nlist build
   clock_type tstart, tlastresize;     // run time of program
   duration_type tnlist;
-  double visaccu[DIM][DIM];           // viscosity accumulant
 
   // internal variables
   const int calcpmsd;                 // flag calculate particle MSD (1) or not (0), set to (2) also output distribution
@@ -205,6 +209,7 @@ private:
   uint64_t pmsd_counter;              // counter number of particle MSD sample
   static const uint64_t COUNT_LIMIT = 10000000ULL;  // average limit number of create sphere attempt per sphere
   Displacements* disp_stat;
+  PressureTensor* ptensor;
 };
 
 #endif

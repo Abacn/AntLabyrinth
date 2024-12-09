@@ -62,7 +62,8 @@ tstart(steady_clock::now()),
 tnlist(duration_type::zero()),
 calcpmsd(input.calcpmsd),
 create_counter(0),
-pmsd_counter(0)
+pmsd_counter(0),
+ptensor(nullptr)
 {
   // intialize parameter values
   rx = diameterRange(input.polydispersity);
@@ -158,10 +159,6 @@ pmsd_counter(0)
     if (i + 1 < N)
       allshifts[i] = new vector<>[N - i - 1];
   }
-
-  for (int i = 0; i < DIM; ++i)
-    for (int j = 0; j < DIM; ++j)
-      visaccu[i][j] = 0.;
 
   global_box = this;
 }
@@ -981,18 +978,18 @@ void Box::Collision(Event e)
   vector<> dvi = viafter - s[i].v;
 
   // viscosity accumulant
-  if (calcpmsd & 4)
+  if (ptensor != nullptr)
   {
     for (int a1 = 0; a1 < DIM; ++a1)
     {
       for (int a2 = 0; a2 < DIM; ++a2)
       {
-        // dot r_k^a dot r_k^a' Delta t_c for i and j
-        visaccu[a1][a2] += s[i].v[a1] * viafter[a2] * dti;
-        visaccu[a1][a2] += s[j].v[a1] * viafter[a2] * dtj;
-
-        // Delta dot r_i^a d_ij^a' TODO: check is += or -=
-        visaccu[a1][a2] += dvi[a1] * dhat_unorm[a2];
+        ptensor->accumulate(a1, a2,
+          // dot r_k^a dot r_k^a' Delta t_c for i and j
+          s[i].v[a1] * viafter[a2] * dti +
+          s[j].v[a1] * viafter[a2] * dtj +
+          // Delta dot r_i^a d_ij^a' TODO: check is += or -=
+          dvi[a1] * dhat_unorm[a2]);
       }
     }
   }
@@ -1052,51 +1049,21 @@ void Box::CallibVelocity()
 }
 
 //==============================================================
-// Thermodynamics quantity calculation
+// Pressure calculation
 //
-// Computes the pressure, also compute viscosity if enabled
-// return pressure, energy, shear viscosity
+// Computes the pressure, return pressure, energy
 //==============================================================
-std::vector<double> Box::Thermodynamics()
+std::vector<double> Box::Pressure()
 {
   double E = Energy();
   double tnow = rtime + gtime;
   double telapse = tnow - plasttime;
   // reduced pressure : p / rho k_B T
   double pressure = 1 + xmomentum / (2. * E * N * telapse);
-  double viscosity = 0.;
-
-  // reset viscosity accumulant
-  if (calcpmsd & 4)
-  {
-    double accu = 0.;
-    double diag = 0.;
-    for (int i = 0; i < DIM; ++i)
-    {
-      diag += visaccu[i][i];
-    }
-    diag /= DIM;
-    for (int i = 0; i < DIM; ++i)
-    {
-      for (int j = 0; j < DIM; ++j)
-      {
-        if (i == j)
-        {
-          accu += (visaccu[i][j] - diag) * (visaccu[i][j] - diag);
-        }
-        else
-        {
-          accu += visaccu[i][j] * visaccu[i][j];
-        }
-      }
-    }
-    // box volume set unit sphere diameter
-    viscosity = accu / (2 * (DIM - 1) * (DIM + 2) * boxvolume * tnow) * pow(2.0 * rmeanfin, DIM - 1);
-  }
 
   plasttime = tnow;
   xmomentum = 0;
-  return { pressure, E, viscosity };
+  return { pressure, E };
 }
 
 //==============================================================
@@ -1264,10 +1231,14 @@ void Box::PrintStatistics(int mode/*=0*/)
       ofs3.close();
     }
   }
-  auto thermos = Thermodynamics();
+  auto thermos = Pressure();
   if (disp_stat != nullptr)
   {
     disp_stat->dump();
+  }
+  if (ptensor != nullptr)
+  {
+    ptensor->dump();
   }
   std::cout << "packing fraction = " << PackingFraction() << std::endl;
   if(0==mode)
@@ -1294,16 +1265,18 @@ void Box::Synchronize(bool rescale)
   {
     // viscosity accumulant
     double dt = gtime-s[i].lutime;
-    if (calcpmsd & 4)
+
+    if (ptensor != nullptr)
     {
       for (int a1 = 0; a1 < DIM; ++a1)
       {
         for (int a2 = 0; a2 < DIM; ++a2)
         {
-          visaccu[a1][a2] += s[i].v[a1] * s[i].v[a2] * dt;
+          ptensor->accumulate(a1, a2, s[i].v[a1] * s[i].v[a2] * dt);
         }
       }
     }
+
     s[i].x = s[i].x + s[i].v*dt;
     s[i].nextevent.time -= gtime;
 
@@ -1318,6 +1291,12 @@ void Box::Synchronize(bool rescale)
   rscale += rinitial*gtime*growthrate;       // r defined at gtime = 0
   rtime += gtime;
   gtime = 0.;
+
+  // statistics rely on synchronized system
+  if (ptensor != nullptr)
+  {
+    ptensor->record();
+  }
 
   // calliborate velocity
   CallibVelocity();
@@ -1349,11 +1328,9 @@ void Box::Reset()
   rtime = 0.0;
   xmomentum = 0.0;
   plasttime = 0.0;
-  if (calcpmsd & 4)
+  if (ptensor != nullptr)
   {
-    for (int i = 0; i < DIM; ++i)
-      for (int j = 0; j < DIM; ++j)
-        visaccu[i][j] = 0;
+    ptensor->reset();
   }
   SetInitialEvents();
   //check the mean radius
@@ -1377,12 +1354,23 @@ void Box::Reset()
   Process(N);
 }
 
-void Box::StartMeasure(double nextsampletime, double sampletimedelt)
+void Box::StartMeasure(double nextsampletime, double sampletimedelt, double tmin, double tmax)
 {
   Reset();
-  this->nextsampletime = nextsampletime * rmeanfin * 2.0;
-  this->sampletimedelt = sampletimedelt * rmeanfin * 2.0;
+  double sigma = rmeanfin * 2.0;
+  this->nextsampletime = nextsampletime * sigma;
+  this->sampletimedelt = sampletimedelt * sigma;
   if (disp_stat != nullptr) disp_stat->initial_snapshot();
+  if (calcpmsd & 4)
+  {
+    if (ptensor != nullptr)
+    {
+      delete ptensor;
+    }
+    int t_n = ceil(log2(tmax / tmin));
+
+    ptensor = new PressureTensor(this, 2 * tmin * sigma, t_n, "thermo.dat");
+  }
 }
 
 //==============================================================

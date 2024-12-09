@@ -93,7 +93,7 @@ int main(int argc, char **argv)
       if ((b.gtime + b.rtime) / sigma > tprint)
       {
         b.Synchronize(true);
-        auto thermos = b.Thermodynamics();
+        auto thermos = b.Pressure();
         output << (b.gtime + b.rtime) / sigma << '\t' << b.PackingFraction() << '\t' << thermos[0] << std::endl;
         tprint = tprint * 1.1892071150027211;
       }
@@ -130,21 +130,18 @@ int main(int argc, char **argv)
       dtmp = sigma*sigma;
       MSD = MSD/input.N/dtmp;
       MQD = MQD/input.N/(dtmp*dtmp);
-      auto thermos = b.Thermodynamics();
+      auto thermos = b.Pressure();
       output << (b.gtime + b.rtime) / sigma << '\t' << thermos[0];
-      if (input.calcpmsd & 4)
-      {
-        output << '\t' << thermos[2];
-      }
       output << '\t' << MSD << '\t' << MQD << std::endl;
       tprint = tprint * 1.1892071150027211;
     }
   }
 
-  b.StartMeasure(maxtime/4, maxtime*3/4000);
+  tprint = input.mintime / DIM;
+  b.StartMeasure(maxtime/4, maxtime*3/4000, tprint, maxtime);
   std::ofstream outMSD("MSD.dat");
   outMSD.precision(10);
-  tprint = input.mintime / DIM;
+
   //procedure 3: measure MSD and rtyp
   std::cout << "Procedure 3: measure MSD and rtyp ..." << std::endl;
 
@@ -167,12 +164,8 @@ int main(int argc, char **argv)
     MSD = MSD/input.N/dtmp;
     rtyp2 = exp(rtyp2/input.N)/dtmp;
     MQD = MQD/input.N/(dtmp*dtmp);
-    auto thermos = b.Thermodynamics();
+    auto thermos = b.Pressure();
     outMSD << (b.gtime + b.rtime) / sigma << '\t' << MSD << '\t' << rtyp2 << '\t' << MQD << '\t' << thermos[0];
-    if (input.calcpmsd & 4)
-    {
-      outMSD << '\t' << thermos[2];
-    }
     outMSD << std::endl;
     tprint = tprint * 1.1892071150027211; // 2^(1/4)
   }

@@ -18,7 +18,8 @@ t_n(t_n),
 bin_left(-3),
 n_bin(61),
 max_count(1024),
-fprefix(fprefix)
+fprefix(fprefix),
+next_dump_t(0.0)
 {
   counts = new int[t_n];
   bins = new int64_t*[t_n];
