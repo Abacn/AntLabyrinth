@@ -34,6 +34,6 @@ void setminimg(double x[DIM]);
 double diameterRange(double polydispersity);
 double averagesprvolume(double rx);
 double gerRfrompfrac(double vspheres, double rx, int N);
-// minimum image under Dn periodic boundary condition
-void DnLatticePoint(double p[DIM], int32_t mirror[DIM]);
+// minimum image under periodic boundary condition of choice
+void LatticePoint(double p[DIM], int32_t mirror[DIM]);
 #endif

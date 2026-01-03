@@ -511,7 +511,7 @@ void Box::CreateSphere(int Ncurrent, double givenR/* = 0.*/)
 
     int32_t itmp[DIM];
     for(int k=0; k<DIM; k++) xrand[k] = 2*rrand(rg) - 1;
-    DnLatticePoint(xrand.x, itmp);
+    LatticePoint(xrand.x, itmp);
 
     if (shiftscale >= 0)
     {
@@ -988,7 +988,7 @@ void Box::Collision(Event e)
           // dot r_k^a dot r_k^a' Delta t_c for i and j
           s[i].v[a1] * viafter[a2] * dti +
           s[j].v[a1] * viafter[a2] * dtj +
-          // Delta dot r_i^a d_ij^a' TODO: check is += or -=
+          // Delta dot r_i^a d_ij^a'
           dvi[a1] * dhat_unorm[a2]);
       }
     }
@@ -1117,7 +1117,14 @@ void Box::Process(int n, int option, double nextt)
       if (!option || 0 == retval) ++i; // is collision
     }
   } else {
-    while((gtime + rtime)/(rmeanfin* 2.0) < nextt) {
+    // nextt != 0, only used in production traj
+    while (1) {
+      double t_now = gtime + rtime;
+      if (ptensor != nullptr && t_now > ptensor->next_recordtime())
+      {
+        Synchronize(false);
+      }
+      if (t_now / (rmeanfin * 2.0) >= nextt) break;
       retval = ProcessEvent();
     }
   }
@@ -1236,9 +1243,9 @@ void Box::PrintStatistics(int mode/*=0*/)
   {
     disp_stat->dump();
   }
-  if (ptensor != nullptr)
+  if (mode == 1 && ptensor != nullptr)
   {
-    ptensor->dump();
+    ptensor->record_remain();
   }
   std::cout << "packing fraction = " << PackingFraction() << std::endl;
   if(0==mode)
@@ -1367,9 +1374,7 @@ void Box::StartMeasure(double nextsampletime, double sampletimedelt, double tmin
     {
       delete ptensor;
     }
-    int t_n = ceil(log2(tmax / tmin));
-
-    ptensor = new PressureTensor(this, 2 * tmin * sigma, t_n, "thermo.dat");
+    ptensor = new PressureTensor(this, 2 * tmin * sigma, tmax * sigma, "thermo.dat");
   }
 }
 

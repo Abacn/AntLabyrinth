@@ -56,9 +56,19 @@ double gerRfrompfrac(double vspheres, double rx, int N)
   return pow(vspheres / (VOLUMESPHERE * totV), 1.0 / DIM);
 }
 
-// lattice point on Dn lattice
-void DnLatticePoint(double p[DIM], int32_t mirror[DIM])
+// Resolve lattice point of p: p(out) = p(in) + mirror
+void LatticePoint(double p[DIM], int32_t mirror[DIM])
 {
+#if (1==BOX_TYPE)
+  double dtmp;
+  for (int k = 0; k < DIM; ++k)
+  {
+    // fast round
+    dtmp = p[k] + 6755399441055744.0;
+    mirror[k] = reinterpret_cast<int32_t&>(dtmp);
+    p[k] -= mirror[k];
+  }
+#else
   int rp, gind = 0, summr = 0;
   double maxdelta = 0, dtmp;
   for(rp=0; rp<DIM; ++rp)
@@ -92,6 +102,7 @@ void DnLatticePoint(double p[DIM], int32_t mirror[DIM])
       --p[gind];
     }
   }
+#endif
 }
 
 void setminimg(double x[DIM])
@@ -106,6 +117,6 @@ void setminimg(double x[DIM])
   }
 #else
   int32_t itmp[DIM];
-  DnLatticePoint(x, itmp);
+  LatticePoint(x, itmp);
 #endif
 }
